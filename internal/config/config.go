@@ -18,6 +18,7 @@ func Read() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return Config{}, err
