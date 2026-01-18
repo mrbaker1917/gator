@@ -66,3 +66,19 @@ func reset(s *state, cmd command) error {
 	fmt.Println("All users were deleted.")
 	return nil
 }
+
+func users(s *state, cmd command) error {
+	ctx := context.Background()
+	users, err := s.db.GetUsers(ctx)
+	if err != nil {
+		return fmt.Errorf("we encountered an error: %w", err)
+	}
+	for _, user := range users {
+		if user == s.cfg.CurrentUserName {
+			fmt.Printf("* %s (current)\n", user)
+		} else {
+			fmt.Printf("* %s\n", user)
+		}
+	}
+	return nil
+}
