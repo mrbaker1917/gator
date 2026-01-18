@@ -4,15 +4,17 @@ import (
 	"fmt"
 
 	"github.com/mrbaker1917/gator/internal/config"
+	"github.com/mrbaker1917/gator/internal/database"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
 type command struct {
 	name string
-	args []string
+	Args []string
 }
 
 type commands struct {
