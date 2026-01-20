@@ -2,60 +2,56 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/mrbaker1917/gator/internal/config"
 	"github.com/mrbaker1917/gator/internal/database"
-
-	_ "github.com/lib/pq"
 )
+
+type state struct {
+	db  *database.Queries
+	cfg *config.Config
+}
 
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalf("error reading config: %v", err)
 	}
 
 	db, err := sql.Open("postgres", cfg.DBURL)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalf("error connecting to db: %v", err)
 	}
+	defer db.Close()
 	dbQueries := database.New(db)
 
-	st := state{
+	programState := &state{
 		db:  dbQueries,
 		cfg: &cfg,
 	}
 
 	cmds := commands{
-		handlers: make(map[string]func(*state, command) error),
+		registeredCommands: make(map[string]func(*state, command) error),
 	}
-
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
-	cmds.register("reset", reset)
-	cmds.register("users", users)
+	cmds.register("reset", handlerReset)
+	cmds.register("users", handlerListUsers)
 	cmds.register("agg", handlerAgg)
+	cmds.register("addfeed", handlerAddFeed)
 
 	if len(os.Args) < 2 {
-		fmt.Println("not enough arguments")
-		os.Exit(1)
+		log.Fatal("Usage: cli <command> [args...]")
 	}
 
-	name := os.Args[1]
-	args := os.Args[2:]
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
 
-	cmd := command{
-		name: name,
-		Args: args,
+	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	if err := cmds.run(&st, cmd); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
 }

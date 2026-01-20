@@ -57,7 +57,7 @@ func handlerLogin(s *state, cmd command) error {
 	return nil
 }
 
-func reset(s *state, cmd command) error {
+func handlerReset(s *state, cmd command) error {
 	ctx := context.Background()
 	err := s.db.DeleteAll(ctx)
 	if err != nil {
@@ -67,7 +67,7 @@ func reset(s *state, cmd command) error {
 	return nil
 }
 
-func users(s *state, cmd command) error {
+func handlerListUsers(s *state, cmd command) error {
 	ctx := context.Background()
 	users, err := s.db.GetUsers(ctx)
 	if err != nil {
