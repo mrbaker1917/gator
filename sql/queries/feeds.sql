@@ -5,3 +5,9 @@ VALUES (
     $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
+
+-- name: GetFeeds :many
+SELECT f.name, f.url, f.user_id, u.name
+FROM feeds AS f
+JOIN users AS u
+ON f.user_id = u.id;
