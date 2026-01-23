@@ -9,6 +9,14 @@ import (
 	"github.com/mrbaker1917/gator/internal/database"
 )
 
+func createFeedFollowForUser(ctx context.Context, db *database.Queries, userID, feedID uuid.UUID) error {
+	_, err := db.CreateFeedFollow(ctx, database.CreateFeedFollowParams{
+		UserID: userID,
+		FeedID: feedID,
+	})
+	return err
+}
+
 func handlerAddFeed(s *state, cmd command) error {
 	username := s.cfg.CurrentUserName
 	if len(cmd.Args) != 2 {
@@ -37,6 +45,10 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	if err != nil {
 		return fmt.Errorf("failed to create feed: %w", err)
+	}
+
+	if err := createFeedFollowForUser(ctx, s.db, user.ID, feed.ID); err != nil {
+		return fmt.Errorf("failed to create feed follow: %w", err)
 	}
 
 	fmt.Println("ID: ", feed.ID)
