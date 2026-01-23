@@ -17,19 +17,13 @@ func createFeedFollowForUser(ctx context.Context, db *database.Queries, userID, 
 	return err
 }
 
-func handlerAddFeed(s *state, cmd command) error {
-	username := s.cfg.CurrentUserName
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: addfeed <feedname> <url>")
 	}
 	feedName := cmd.Args[0]
 	feedURL := cmd.Args[1]
 	ctx := context.Background()
-	user, err := s.db.GetUser(ctx, username)
-
-	if err != nil {
-		return fmt.Errorf("could not login user: %w", err)
-	}
 
 	feed, err := s.db.CreateFeed(
 		ctx,
